@@ -1,3 +1,37 @@
+{const fs = require('fs');
+const path = require('path');
+
+// 指定要修复的文件路径
+const filePath = path.join(__dirname, '../src/app/api/data.json');
+
+try {
+  // 读取文件原始内容
+  let rawData = fs.readFileSync(filePath, 'utf8');
+  
+  // 核心逻辑：移除 ASCII 0-31 之间的控制字符（保留合法的 \n, \r, \t 需视情况而定，但标准JSON中字符串内换行必须转义）
+  // 这里采用严格模式：移除所有未转义的控制字符，防止 Turbopack 报错
+  // 注意：如果数据中确实需要换行，应确保它们是 \\n 而不是真正的换行符
+  const cleanedData = rawData.replace(/[\u0000-\u001f]/g, (match) => {
+    // 可选：如果你希望保留换行符并转为转义字符，可以在此处理
+    // if (match === '\n') return '\\n';
+    // if (match === '\r') return '\\r';
+    // if (match === '\t') return '\\t';
+    // 否则直接移除
+    return '';
+  });
+
+  // 验证清洗后的数据是否为合法 JSON
+  JSON.parse(cleanedData);
+
+  // 写回文件
+  fs.writeFileSync(filePath, cleanedData, 'utf8');
+  console.log('✅ data.json 修复成功：非法控制字符已移除。');
+} catch (error) {
+  console.error('❌ 修复失败:', error.message);
+  process.exit(1);
+}
+
+}
 {
   "name": "tutorial-with-next",
   "version": "0.1.0",
