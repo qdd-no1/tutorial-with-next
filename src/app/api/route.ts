@@ -1,3 +1,3 @@
 export function GET() {
-    return Response.json("我的导航API");
+    return Response.json("Welcome to the Dinosaur app");
 }
